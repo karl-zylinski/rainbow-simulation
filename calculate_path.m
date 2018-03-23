@@ -1,15 +1,16 @@
-function path = calculate_path(start_height, max_internal_bounces, plot_result)
+function [path, hit_y] = calculate_path(start_height, max_internal_bounces, refractive_index, color, plot_result, x_target)
 
 r = 1;
 b = r*start_height;
 start_y = b;
 start_x = -5;
-cur_pos = [start_x, start_y];
+start = [start_x, start_y];
+cur_pos = start;
 dir = [1, 0];
 step_size = 0.001;
 path_x = [];
 path_y = [];
-n = 1.33;
+n = refractive_index;
 
 if plot_result == 1
     viscircles([0, 0], r, 'Color', 'b', 'LineWidth', 0.1);
@@ -49,7 +50,7 @@ while (true)
             dir = bounce_inside(cur_pos, dir);
             cur_pos = old_pos;
         else
-            angle = int_angle - ext_angle;
+            angle = ext_angle - int_angle;
             a = atan2(dir(2), dir(1)) + angle;
             dir = [cos(a), sin(a)];
             cur_pos = new_pos;
@@ -62,18 +63,41 @@ while (true)
         cur_pos = new_pos;
     end
     
-    if norm(cur_pos) > 10
-        path_x(i) = x;
-        path_y(i) = y;
-        i = i + 1;
-        
-        break;
+    if norm(old_pos) > r && num_internal_bounces > 0
+        if dot(dir, [-1, 0]) < 0 % going wrong way
+            path_x(i) = x;
+            path_y(i) = y;
+
+            i = i + 1;
+
+            hit_y = 0;
+
+            break;
+        elseif old_pos(1) < x_target && new_pos(1) < x_target % missed before exiting
+            path_x(i) = x;
+            path_y(i) = y;
+
+            hit_y = 0;
+
+            i = i + 1;
+
+            break;
+        elseif old_pos(1) > x_target && new_pos(1) < x_target % hit target
+            path_x(i) = x;
+            path_y(i) = y;
+
+            hit_y = y;
+
+            i = i + 1;
+
+            break;
+        end
     end
 end
 
 if plot_result == 1
     hold on;
-    plot(path_x, path_y, 'r');
+    plot(path_x, path_y, 'MarkerFaceColor', color);
 end
 
 path = [path_x, path_y];
