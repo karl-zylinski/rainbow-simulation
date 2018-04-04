@@ -1,8 +1,8 @@
-%clear all;
+clear all;
 clf;
 
 t = 0;
-animate = 0;
+animate = 1;
 refractive_indices = [
     1.34451
     1.34235
@@ -45,8 +45,8 @@ if animate == 0
         c = colors(ni, :);
 
         i = 1;
-        for y = 0.78:0.00001:0.81
-            [path, hit_y] = calculate_path(y, 1, n, c, 0, 0);
+        for y = 0:0.0001:1
+            [path, hit_y] = calculate_path(y, 1, n, c, 0, -2);
 
             if (hit_y ~= 0)
                 hits_start_y(ni, i) = y;
@@ -57,23 +57,23 @@ if animate == 0
         end
     end
 
-    for ni = 1:length(refractive_indices)     
-        histogram(hits_end_y(ni, :), 'NumBins', 1000, 'FaceColor', colors(ni, :), 'BinLimits', [-1.5, -1]);
+    for ni = 1:length(refractive_indices)
+        histogram(hits_end_y(ni, :), 'NumBins', 40, 'FaceColor', colors(ni, :));
         hold on;
     end
 else
     t = 0;
     while(true)
         t = t + 0.1;
-        b = cos(t);
+        b = abs(cos(t));
         clf;
 
         for i = 1:length(refractive_indices)
             n = refractive_indices(i);
             c = colors(i, :);
-            [path, hit_y] = calculate_path(b, 1, n, c, 1, 0);
+            [path, hit_y] = calculate_path(b, 1, n, c, 1, -2);
         end
 
-        pause(0.000001);
+        pause(0.1);
     end
 end

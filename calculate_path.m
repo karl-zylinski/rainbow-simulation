@@ -3,7 +3,7 @@ function [path, hit_y] = calculate_path(start_height, max_internal_bounces, refr
 r = 1;
 b = r*start_height;
 start_y = b;
-start_x = -5;
+start_x = -1.1;
 start = [start_x, start_y];
 cur_pos = start;
 dir = [1, 0];
@@ -18,80 +18,61 @@ end
 
 axis([-2, 2, -2, 2]);
 
-i = 2;
-if plot_result == 1
-    path_x(1) = start_x;
-    path_y(1) = start_y;
+i = 1;
+function add_to_plot(point)
+    if plot_result == 0
+        return;
+    end
+    
+    path_x(i) = point(1);
+    path_y(i) = point(2);
+    i = i + 1;
 end
 
+add_to_plot(start);
 num_internal_bounces = 0;
-ext_angle = acos(sqrt(1-b^2));
-int_angle = asin(b/n);
+
+% angle from normal when we hit wall from outside
+ext_angle = asin(b/r);
+% angle from normal after refracting into drop
+int_angle = asin(b/(r*n));
 
 while (true)
     old_pos = cur_pos;
     new_pos = cur_pos + dir * step_size;
-    x = cur_pos(1);
-    y = cur_pos(2);
+    avg_pos = (cur_pos + old_pos)./2;
     
     % we've gone from outside to inside
     if norm(old_pos) > r && norm(new_pos) <= r
-        new_angle = int_angle - ext_angle;
+        new_angle = -(ext_angle - int_angle); % angle between x-axis and direction of light
         dir = [cos(new_angle), sin(new_angle)];
         cur_pos = new_pos;
-
-        path_x(i) = x;
-        path_y(i) = y;
-        i = i + 1;
-
-    elseif norm(old_pos) < r && norm(new_pos) >= r
+        add_to_plot(avg_pos);
+    elseif norm(old_pos) < r && norm(new_pos) >= r % we hit wall from inside
         if num_internal_bounces ~= max_internal_bounces
             num_internal_bounces = num_internal_bounces + 1;
             dir = bounce_inside(cur_pos, dir);
             cur_pos = old_pos;
+            add_to_plot(avg_pos);
         else
-            angle = ext_angle - int_angle;
-            a = atan2(dir(2), dir(1)) + angle;
-            dir = [cos(a), sin(a)];
-            cur_pos = new_pos;
+            wanted_x = abs(avg_pos(1)) + abs(x_target);
+            angle_to_normal = acos(dot(avg_pos./norm(avg_pos), dir)); % uses dot(avg_pos, dir) = cos(angle)
+            angle_refracted = asin(n*sin(angle_to_normal));
+            angle_normal = atan2(avg_pos(2), avg_pos(1));
+            a = angle_normal - angle_refracted;
+            
+            if (a > (-pi/2) && a < (pi/2))
+                hit_y = 0;
+                break;
+            end
+
+            end_y = -(wanted_x * tan(pi - abs(a)));
+            hit_y = avg_pos(2) + end_y;
+            add_to_plot([x_target, hit_y]);
+            break;
         end
-        
-        path_x(i) = x;
-        path_y(i) = y;
-        i = i + 1;
     else
         cur_pos = new_pos;
-    end
-    
-    if norm(old_pos) > r && num_internal_bounces > 0
-        if dot(dir, [-1, 0]) < 0 % going wrong way
-            path_x(i) = x;
-            path_y(i) = y;
-
-            i = i + 1;
-
-            hit_y = 0;
-
-            break;
-        elseif old_pos(1) < x_target && new_pos(1) < x_target % missed before exiting
-            path_x(i) = x;
-            path_y(i) = y;
-
-            hit_y = 0;
-
-            i = i + 1;
-
-            break;
-        elseif old_pos(1) > x_target && new_pos(1) < x_target % hit target
-            path_x(i) = x;
-            path_y(i) = y;
-
-            hit_y = y;
-
-            i = i + 1;
-
-            break;
-        end
     end
 end
 
@@ -101,3 +82,4 @@ if plot_result == 1
 end
 
 path = [path_x, path_y];
+end
