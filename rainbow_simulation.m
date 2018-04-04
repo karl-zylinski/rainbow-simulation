@@ -65,7 +65,7 @@ else
     t = 0;
     while(true)
         t = t + 0.1;
-        b = cos(t);
+        b = abs(cos(t));
         clf;
 
         for i = 1:1%length(refractive_indices)
