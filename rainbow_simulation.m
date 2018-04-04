@@ -65,10 +65,10 @@ else
     t = 0;
     while(true)
         t = t + 0.1;
-        b = abs(cos(t));
+        b = cos(t);
         clf;
 
-        for i = 1:length(refractive_indices)
+        for i = 1:1%length(refractive_indices)
             n = refractive_indices(i);
             c = colors(i, :);
             [path, hit_y] = calculate_path(b, 1, n, c, 1, -2);

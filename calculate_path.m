@@ -7,7 +7,7 @@ start_x = -1.1;
 start = [start_x, start_y];
 cur_pos = start;
 dir = [1, 0];
-step_size = 0.001;
+step_size = 0.0001;
 path_x = [];
 path_y = [];
 n = refractive_index;
@@ -55,17 +55,15 @@ while (true)
             cur_pos = old_pos;
             add_to_plot(avg_pos);
         else
-            wanted_x = abs(avg_pos(1)) + abs(x_target);
-            angle_to_normal = acos(dot(avg_pos./norm(avg_pos), dir)); % uses dot(avg_pos, dir) = cos(angle)
-            angle_refracted = asin(n*sin(angle_to_normal));
-            angle_normal = atan2(avg_pos(2), avg_pos(1));
-            a = angle_normal - angle_refracted;
+            add_to_plot(avg_pos);
+            a = int_angle - ext_angle + atan2(dir(2), dir(1));
             
             if (a > (-pi/2) && a < (pi/2))
                 hit_y = 0;
                 break;
             end
 
+            wanted_x = abs(avg_pos(1)) + abs(x_target);
             end_y = -(wanted_x * tan(pi - abs(a)));
             hit_y = avg_pos(2) + end_y;
             add_to_plot([x_target, hit_y]);
