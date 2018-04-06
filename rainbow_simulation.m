@@ -34,7 +34,7 @@ colors = [
     175 0 0;
 ]/255;
 
-animate = 1;
+animate = 0;
 static = 0;
 cont_spec = 0;
 hits_end_y = [];
@@ -46,10 +46,11 @@ if static == 1
     bs = 1;
         
     for b = 0:0.01:1
-        for i = 1:1
+        for i = 1:length(refractive_indices)
             n = refractive_indices(i);
             c = colors(i, :);
-            [path, hit_y] = calculate_path(b, 1, n, c, 1, -2);
+            calculate_path(-1, 2, n, c, 1, -2);
+            calculate_path(0.88, 1, n, c, 1, -2);
         end
 
         axis([-2, 2, -4, 2]);
@@ -106,9 +107,9 @@ elseif animate == 0
         incident_angles = [];
         start_ys = [];
         last_5000 = 0;
-        num_beams = 1000;
+        num_beams = 100000;
         num_bounces = 2;
-        for y = linspace(-1, 0, num_beams)
+        for y = linspace(-1, -0.75, num_beams)
             [path, hit_y, incident_angle, def_angle] = calculate_path(y, num_bounces, n, c, 0, -2);
 
             if (hit_y ~= 0)
@@ -151,14 +152,14 @@ else
     t = 0;
     while(true)
         t = t + 0.01;
-        b = -abs(cos(t));
-        
+        b = abs(cos(t));
+                
         clf;
 
         for i = 1:length(refractive_indices)
             n = refractive_indices(i);
             c = colors(i, :);
-            [path, hit_y] = calculate_path(b, 2, n, c, 1, -2);
+            calculate_path(b, 1, n, c, 1, -2);
         end
 
         axis([-2, 2, -4, 2]);

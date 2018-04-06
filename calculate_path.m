@@ -62,6 +62,11 @@ deflection_angle = int_angle - ext_angle + atan2(dir(2), dir(1));
 
 wanted_x = cur_pos(1) - x_target;
 end_y = -(wanted_x * tan(pi - abs(deflection_angle)));
+
+if deflection_angle > -pi/2 && deflection_angle < 0
+    end_y = -end_y;
+end
+
 hit_y = cur_pos(2) + end_y;
 add_to_plot([x_target, hit_y]);
 

@@ -22,10 +22,8 @@ for ni = 1:length(refractive_indices)
     hold on;
 end
 
-axis([-3.02, -2.8, 0, 1000]);
-
 figure(2);
-%plot(hits_start_y(1,:), abs(hits_end_y(1,:)));
+plot(hits_start_y(1,:), abs(hits_end_y(1,:)));
 for ni = 1:length(refractive_indices)    
     plot(rad2deg(hits_incident_angles(ni, :)), -rad2deg(hits_deflection_angles(ni, :)), 'color', colors(ni, :));
     hold on;
