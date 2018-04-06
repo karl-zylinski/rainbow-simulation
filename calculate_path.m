@@ -1,4 +1,4 @@
-function [path, hit_y] = calculate_path(start_height, max_internal_bounces, refractive_index, color, plot_result, x_target)
+function [path, hit_y, incident_angle, deflection_angle] = calculate_path(start_height, max_internal_bounces, refractive_index, color, plot_result, x_target)
 
 r = 1;
 b = r*start_height;
@@ -10,11 +10,8 @@ if start_y > r
     return;
 end
 
-start_x = -1.1;
+start_x = -2;
 start = [start_x, start_y];
-cur_pos = start;
-dir = [1, 0];
-step_size = 0.0001;
 path_x = [];
 path_y = [];
 n = refractive_index;
@@ -37,49 +34,36 @@ function add_to_plot(point)
 end
 
 add_to_plot(start);
-num_internal_bounces = 0;
 
 % angle from normal when we hit wall from outside
 ext_angle = asin(b/r);
+incident_angle = ext_angle;
 % angle from normal after refracting into drop
 int_angle = asin(b/(r*n));
 
-while (true)
-    old_pos = cur_pos;
-    new_pos = cur_pos + dir * step_size;
-    avg_pos = (cur_pos + old_pos)./2;
-    
-    % we've gone from outside to inside
-    if norm(old_pos) > r && norm(new_pos) <= r
-        new_angle = -(ext_angle - int_angle); % angle between x-axis and direction of light
-        dir = [cos(new_angle), sin(new_angle)];
-        cur_pos = new_pos;
-        add_to_plot(avg_pos);
-    elseif norm(old_pos) < r && norm(new_pos) >= r % we hit wall from inside
-        if num_internal_bounces ~= max_internal_bounces
-            num_internal_bounces = num_internal_bounces + 1;
-            dir = bounce_inside(cur_pos, dir);
-            cur_pos = old_pos;
-            add_to_plot(avg_pos);
-        else
-            add_to_plot(avg_pos);
-            a = int_angle - ext_angle + atan2(dir(2), dir(1));
-            
-            if (a > (-pi/2) && a < (pi/2))
-                hit_y = 0;
-                break;
-            end
+x_enter = -sqrt(r^2 - start_y^2);
+internal_bounce_length = 2*sqrt(1-(start_y^2/n^2));
+cur_pos = [x_enter, start_y];
+add_to_plot(cur_pos);
+enter_angle = -(ext_angle - int_angle);
+dir = [cos(enter_angle), sin(enter_angle)];
 
-            wanted_x = avg_pos(1) - x_target;
-            end_y = -(wanted_x * tan(pi - abs(a)));
-            hit_y = avg_pos(2) + end_y;
-            add_to_plot([x_target, hit_y]);
-            break;
-        end
-    else
-        cur_pos = new_pos;
-    end
+for bounce = 1:max_internal_bounces
+    cur_pos = cur_pos + dir*internal_bounce_length;
+    add_to_plot(cur_pos);
+    dir = bounce_inside(cur_pos, dir);
 end
+
+cur_pos = cur_pos + dir*internal_bounce_length;
+
+add_to_plot(cur_pos);
+
+deflection_angle = int_angle - ext_angle + atan2(dir(2), dir(1));
+
+wanted_x = cur_pos(1) - x_target;
+end_y = -(wanted_x * tan(pi - abs(deflection_angle)));
+hit_y = cur_pos(2) + end_y;
+add_to_plot([x_target, hit_y]);
 
 if plot_result == 1
     hold on;

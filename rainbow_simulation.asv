@@ -2,7 +2,6 @@ clear all;
 clf;
 
 t = 0;
-animate = 1;
 refractive_indices = [
     1.34451
     1.34235
@@ -20,29 +19,34 @@ refractive_indices = [
 ];
 
 colors = [
-    139 34 82;
-    0 0 156; 
-    0 0 156; 
-    0 127 255;
+    188 40 200;
+    120 50 199; 
+    0 100 240; 
+    0 180 255;
     112 219 147; 
     124 252 0;
-    173 255 47; 
+    200 255 47; 
     255 255 0;
-    218 165 32; 
-    255 69 0; 
-    255 69 0;  
-    255 69 0; 
-    255 69 0;
+    255 200 0; 
+    255 89 0; 
+    255 0 0;  
+    200 0 0; 
+    175 0 0;
 ]/255;
 
-static = 1;
+animate = 0;
+static = 0;
+cont_spec = 0;
+hits_end_y = [];
+hits_start_y = [];
+hits_deflection_angles = [];
+hits_incident_angles = [];
 
 if static == 1
     bs = 1;
-    
-    
+        
     for b = 0:0.01:1
-        for i = 1:length(refractive_indices)
+        for i = 1:1
             n = refractive_indices(i);
             c = colors(i, :);
             [path, hit_y] = calculate_path(b, 1, n, c, 1, -2);
@@ -52,41 +56,91 @@ if static == 1
         pause(0.1);
         axis([-2, 2, -4, 2]);
     end
+elseif cont_spec == 1
+    cluster = parcluster('local');
+    cluster.NumWorkers = 8;
+    saveProfile(cluster);
+    n_top = refractive_indices(1);
+    n_bottom = refractive_indices(end);
+    num_n = 100;
+    cont_refractive_indices = linspace(n_bottom, n_top, num_n);
+    
+    parfor ni = 1:num_n
+        n = cont_refractive_indices(ni);
+        idx = 1;
+        hits = [];
+        start_ys = [];
+        num_beams = 10000;
+        for y = linspace(0, 1, num_beams)
+            [path, hit_y] = calculate_path(y, 1, n, 0, 0, -2);
+
+            if (hit_y ~= 0)
+                hits(idx) = hit_y;
+                start_ys(idx) = y;
+                idx = idx + 1;
+            end
+        end
+        disp(['index ', num2str(n), ' done']);
+        hits_end_y(ni, :) = hits;
+        hits_start_y(ni, :) = start_ys;
+    end
+    
+    for ni = 1:num_n
+        c_hsv = [(ni/num_n)*0.8, 1, 1];
+        histogram(hits_end_y(ni, :), 'NumBins', 400, 'FaceColor', hsv2rgb(c_hsv));
+        hold on;
+    end
 elseif animate == 0
     cluster = parcluster('local');
     cluster.NumWorkers = 14;
     saveProfile(cluster);
     
-    parfor ni = 1:length(refractive_indices)      
+    parfor ni = 1:length(refractive_indices)
         n = refractive_indices(ni);
+        disp(['starting index ', num2str(n)]);
         c = colors(ni, :);
 
-        i = 1;
+        idx = 1;
         hits = [];
-        for y = 0:0.00001:1
-            [path, hit_y] = calculate_path(y, 1, n, c, 0, -2);
+        deflection_angles = [];
+        incident_angles = [];
+        start_ys = [];
+        last_5000 = 0;
+        num_beams = 100000;
+        for y = linspace(0, 1, num_beams)
+            [path, hit_y, incident_angle, def_angle] = calculate_path(y, 1, n, c, 0, -2);
 
             if (hit_y ~= 0)
-                hits(i) = hit_y;
-                i = i + 1;
+                hits(idx) = hit_y;
+                start_ys(idx) = y;
+                deflection_angles(idx) = def_angle;
+                incident_angles(idx) = incident_angle;
+                idx = idx + 1;
+                if idx > last_5000 + 5000
+                    disp(['index ', num2str(n),': ', num2str((idx*100)/num_beams, 3), '%']);
+                    last_5000 = last_5000 + 5000;
+                end
             end
         end
+        disp(['index ', num2str(n),' done']);
         hits_end_y(ni, :) = hits;
+        hits_start_y(ni, :) = start_ys;
+        hits_deflection_angles(ni, :) = deflection_angles;
+        hits_incident_angles(ni, :) = incident_angles;
     end
     
     for ni = 1:length(refractive_indices)    
-        histogram(hits_end_y(ni, :), 'NumBins', 100, 'FaceColor', colors(ni, :));
+        histogram(hits_end_y(ni, :), 'NumBins', 4000, 'FaceColor', colors(ni, :));
         hold on;
     end
+    
+    plot(rad2deg(hits_incident_angles(1,:)), -rad2deg(hits_deflection_angles(1,:)));
 else
     t = 0;
     while(true)
         t = t + 0.01;
         b = abs(cos(t));
         
-        if b < 0.6 || b > 0.8 
-            continue; 
-        end
         clf;
 
         for i = 1:length(refractive_indices)

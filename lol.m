@@ -1,42 +1,32 @@
 clf;
 
-refractive_indices = [
-    1.34451
-    1.34235
-    1.34055
-    1.33903
-    1.33772
-    1.33659
-    1.33560
-    1.33472
-    1.33393
-    1.33322
-    1.33257
-    1.33197
-    1.33141
-];
-
-hits_start_y = [];
-
-for ni = 1:length(refractive_indices)      
-    n = refractive_indices(ni);
-
-    i = 1;
-    for y = 0:0.00001:1
-        if i == 100001
-            break;
-        end
-        hits_start_y(ni, i) = y;
-        i = i + 1;
-    end
-end
+colors = [
+    188 40 200;
+    120 50 199; 
+    0 100 240; 
+    0 180 255;
+    112 219 147; 
+    124 252 0;
+    200 255 47; 
+    255 255 0;
+    255 200 0; 
+    255 89 0; 
+    255 0 0;  
+    200 0 0; 
+    175 0 0;
+]/255;
 
 figure(1);
-plot(hits_start_y(2, :), abs(hits_end_y(2, :)));
+for ni = 1:length(refractive_indices)    
+    histogram(hits_end_y(ni, :), 'NumBins', 4000, 'FaceColor', colors(ni, :), 'FaceAlpha', 1);
+    hold on;
+end
+
+axis([-3.02, -2.8, 0, 1000]);
 
 figure(2);
-
+%plot(hits_start_y(1,:), abs(hits_end_y(1,:)));
 for ni = 1:length(refractive_indices)    
-    histogram(hits_end_y(ni, :), 'NumBins', 4000, 'FaceColor', colors(ni, :));
+    plot(rad2deg(hits_incident_angles(ni, :)), -rad2deg(hits_deflection_angles(ni, :)), 'color', colors(ni, :));
     hold on;
 end
