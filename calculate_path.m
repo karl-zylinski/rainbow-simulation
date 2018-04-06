@@ -3,6 +3,13 @@ function [path, hit_y] = calculate_path(start_height, max_internal_bounces, refr
 r = 1;
 b = r*start_height;
 start_y = b;
+
+if start_y > r
+    hit_y = 0;
+    path = [];
+    return;
+end
+
 start_x = -1.1;
 start = [start_x, start_y];
 cur_pos = start;
@@ -63,7 +70,7 @@ while (true)
                 break;
             end
 
-            wanted_x = abs(avg_pos(1)) + abs(x_target);
+            wanted_x = avg_pos(1) - x_target;
             end_y = -(wanted_x * tan(pi - abs(a)));
             hit_y = avg_pos(2) + end_y;
             add_to_plot([x_target, hit_y]);
@@ -76,7 +83,7 @@ end
 
 if plot_result == 1
     hold on;
-    plot(path_x, path_y, 'MarkerFaceColor', color);
+    plot(path_x, path_y, 'color', color);
 end
 
 path = [path_x, path_y];
