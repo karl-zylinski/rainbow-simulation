@@ -52,7 +52,6 @@ ylabel('Hits at y position');
 xlabel('y position');
 title('Histograms of where beam hits y axis after 1 bounce in rain drop for different colors of light');
 
-
 % Plot of deflection angle against angle of incidence for primary rainbow
 figure(2);
 for ni = 1:length(refractive_indices)    
