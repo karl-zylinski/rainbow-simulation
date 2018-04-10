@@ -1,12 +1,10 @@
-function [path, hit_y, incident_angle, deflection_angle] = calculate_path(start_height, max_internal_bounces, refractive_index, color, plot_result, x_target)
-
+function [hit_y, incident_angle, deflection_angle] = calculate_path(start_height, max_internal_bounces, refractive_index, color, plot_result, x_target)
 r = 1;
 b = r*start_height;
 start_y = b;
 
 if start_y > r
     hit_y = 0;
-    path = [];
     return;
 end
 
@@ -74,6 +72,4 @@ if plot_result == 1
     hold on;
     plot(path_x, path_y, 'color', color);
 end
-
-path = [path_x, path_y];
 end
