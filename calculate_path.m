@@ -1,4 +1,4 @@
-function [hit_y, incident_angle, deflection_angle] = calculate_path(start_height, max_internal_bounces, refractive_index, color, plot_result, x_target)
+function [hit_y, incident_angle, deflection_angle, p_intensity_left, s_intensity_left] = calculate_path(start_height, max_internal_bounces, refractive_index, color, plot_result, x_target)
 r = 1;
 b = r*start_height;
 start_y = b;
@@ -38,6 +38,14 @@ ext_angle = asin(b/r);
 incident_angle = ext_angle;
 % angle from normal after refracting into drop
 int_angle = asin(b/(r*n));
+
+p_intensity_left = 1*((sin(2*ext_angle)*sin(2*int_angle))/(sin(ext_angle+int_angle)^2*cos(ext_angle-int_angle)^2)) ...
+                    *(tan(ext_angle-int_angle)/tan(ext_angle+int_angle))^(2*max_internal_bounces) ...
+                    *((sin(2*int_angle)*sin(2*ext_angle))/(sin(int_angle+ext_angle)^2*cos(int_angle-ext_angle)^2));
+                
+s_intensity_left = 1*((sin(2*int_angle)*sin(2*ext_angle))/sin(ext_angle+int_angle)^2) ...
+                    *(sin(ext_angle-int_angle)/sin(ext_angle+int_angle))^(2*max_internal_bounces) ...
+                    *((sin(2*ext_angle)*sin(2*int_angle))/sin(int_angle+ext_angle)^2);
 
 x_enter = -sqrt(r^2 - start_y^2);
 internal_bounce_length = 2*sqrt(1-(start_y^2/n^2));
