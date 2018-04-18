@@ -47,7 +47,7 @@ s_intensity_left = 1*((sin(2*int_angle)*sin(2*ext_angle))/sin(ext_angle+int_angl
                     *((sin(2*ext_angle)*sin(2*int_angle))/sin(int_angle+ext_angle)^2);
 
 x_enter = -sqrt(r^2 - start_y^2);
-internal_bounce_length = 2*sqrt(1-(start_y^2/n^2));
+internal_bounce_length = 2*r*sqrt(1-(start_y^2/(n*r)^2));
 cur_pos = [x_enter, start_y];
 add_to_plot(cur_pos);
 enter_angle = -(ext_angle - int_angle);

@@ -1,5 +1,5 @@
 clear all;
-clf;
+close all;
 
 global enable_image_saving;
 enable_image_saving = 1;
