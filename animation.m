@@ -34,7 +34,7 @@ colors = [
 ]/255;
 
 t = 0;
-time_step = 0.1
+time_step = 0.1;
 while(true)
     t = t + time_step;
     b = abs(cos(t));

@@ -1,7 +1,6 @@
 function [hit_y, incident_angle, deflection_angle, p_intensity_left, s_intensity_left] = calculate_path(start_height, max_internal_bounces, refractive_index, color, plot_result, x_target)
 r = 1;
-b = r*start_height;
-start_y = b;
+start_y = r*start_height;
 
 if start_y > r
     hit_y = 0;
@@ -34,10 +33,10 @@ end
 add_to_plot(start);
 
 % angle from normal when we hit wall from outside
-ext_angle = asin(b/r);
+ext_angle = asin(start_y/r);
 incident_angle = ext_angle;
 % angle from normal after refracting into drop
-int_angle = asin(b/(r*n));
+int_angle = asin(start_y/(r*n));
 
 p_intensity_left = 1*((sin(2*ext_angle)*sin(2*int_angle))/(sin(ext_angle+int_angle)^2*cos(ext_angle-int_angle)^2)) ...
                     *(tan(ext_angle-int_angle)/tan(ext_angle+int_angle))^(2*max_internal_bounces) ...
@@ -61,11 +60,8 @@ for bounce = 1:max_internal_bounces
 end
 
 cur_pos = cur_pos + dir*internal_bounce_length;
-
 add_to_plot(cur_pos);
-
 deflection_angle = int_angle - ext_angle + atan2(dir(2), dir(1));
-
 wanted_x = cur_pos(1) - x_target;
 end_y = -(wanted_x * tan(pi - abs(deflection_angle)));
 

@@ -1,6 +1,8 @@
 clear all;
 clf;
 
+global enable_image_saving;
+enable_image_saving = 1;
 load_old_data = 1;
 
 refractive_indices = [
@@ -46,12 +48,12 @@ end
 % Histogram from primary rainbow
 figure(1);
 for ni = 1:length(refractive_indices)    
-    histogram(primary_end_y(ni, :), 'NumBins', 4000, 'FaceColor', colors(ni, :));
+    histogram(primary_end_y(ni, :), 'NumBins', 4000, 'FaceColor', colors(ni, :), 'LineStyle', 'none', 'FaceAlpha', 1);
     hold on;
 end
 ylabel('Hits at y position');
 xlabel('y position');
-title('Histograms of where beam hits y axis after 1 bounce in rain drop for different colors of light');
+title('Histograms of where beam hits line x = -2 after 1 bounce in rain drop for different colors of light');
 
 % Plot of deflection angle against angle of incidence for primary rainbow
 figure(2);
@@ -62,6 +64,7 @@ end
 ylabel('Deflection angle (degrees)');
 xlabel('Angle of incidence (degrees)');
 title('Angle of deflection vs angle of incidence after 1 bounce in rain drop');
+save_image('primary_def_angle');
 
 % Plot intensity left for s polarised light for primary rainbow
 figure(3);
@@ -72,6 +75,7 @@ end
 ylabel('Fraction of intensity left');
 xlabel('Initial y position');
 title('Intensity left for primary rainbow, s-polarised light (after 1 bounce)');
+save_image('primary_s_inten_left');
 
 % Plot intensity left for p polarised light for primary rainbow
 figure(4);
@@ -82,11 +86,12 @@ end
 ylabel('Fraction of intensity left');
 xlabel('Initial y position');
 title('Intensity left for primary rainbow, p-polarised light (after 1 bounce)');
+save_image('primary_p_inten_left');
 
 % Histogram for secondary rainbow
 figure(5);
 for ni = 1:length(refractive_indices)    
-    histogram(secondary_end_y(ni, :), 'NumBins', 4000, 'FaceColor', colors(ni, :));
+    histogram(secondary_end_y(ni, :), 'NumBins', 4000, 'FaceColor', colors(ni, :), 'LineStyle', 'none', 'FaceAlpha', 1);
     hold on;
 end
 ylabel('Hits at y position');
@@ -102,6 +107,7 @@ end
 ylabel('Deflection angle (degrees)');
 xlabel('Angle of incidence (degrees)');
 title('Angle of deflection vs angle of incidence after 2 bounces in rain drop');
+save_image('secondary_def_angle');
 
 % Plot intensity left for s polarised light for secondary rainbow
 figure(7);
@@ -112,6 +118,7 @@ end
 ylabel('Fraction of intensity left');
 xlabel('Initial y position');
 title('Intensity left for secondary rainbow, s-polarised light (after 2 bounces)');
+save_image('secondary_s_inten_left');
 
 % Plot intensity left for p polarised light for secondary rainbow
 figure(8);
@@ -122,3 +129,12 @@ end
 ylabel('Fraction of intensity left');
 xlabel('Initial y position');
 title('Intensity left for secondary rainbow, p-polarised light (after 2 bounces)');
+save_image('secondary_p_inten_left');
+
+function save_image(name)
+    global enable_image_saving;
+    if enable_image_saving == 0
+        return;
+    end
+    print(name, '-dpng');
+end
