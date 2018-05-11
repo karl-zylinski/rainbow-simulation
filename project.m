@@ -5,6 +5,7 @@ global enable_image_saving;
 enable_image_saving = 1;
 load_old_data = 1;
 
+% Used for simulating colors of different light.
 refractive_indices = [
     1.34451
     1.34235
@@ -21,6 +22,7 @@ refractive_indices = [
     1.33141
 ];
 
+% Each of these colors map the the corresponding refractive index above.
 colors = [
     188 40 200;
     120 50 199; 
@@ -37,6 +39,7 @@ colors = [
     175 0 0;
 ]/255;
 
+% We can use old, previously calculated data if we just want to experiment with the plotting.
 if load_old_data == 1
     load('project_data.mat');
 else
@@ -51,8 +54,8 @@ for ni = 1:length(refractive_indices)
     histogram(primary_end_y(ni, :), 'NumBins', 4000, 'FaceColor', colors(ni, :), 'LineStyle', 'none', 'FaceAlpha', 1);
     hold on;
 end
-ylabel('Hits at y position');
-xlabel('y position');
+ylabel('Number of rays');
+xlabel('Final ray y position');
 title('Histograms of where beam hits line x = -2 after 1 bounce in rain drop for different colors of light');
 
 % Plot of deflection angle against angle of incidence for primary rainbow
@@ -94,8 +97,8 @@ for ni = 1:length(refractive_indices)
     histogram(secondary_end_y(ni, :), 'NumBins', 4000, 'FaceColor', colors(ni, :), 'LineStyle', 'none', 'FaceAlpha', 1);
     hold on;
 end
-ylabel('Hits at y position');
-xlabel('y position');
+ylabel('Number of rays');
+xlabel('Final ray y position');
 title('Histograms of where beam hits y axis after 2 bounces in rain drop for different colors of light');
 
 % Plot of deflection angle against angle of incidence for secondary rainbow

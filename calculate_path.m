@@ -13,6 +13,7 @@ path_x = [];
 path_y = [];
 n = refractive_index;
 
+% Represent drop with circle
 if plot_result == 1
     viscircles([0, 0], r, 'Color', 'b', 'LineWidth', 0.1);
 end
@@ -38,6 +39,7 @@ incident_angle = ext_angle;
 % angle from normal after refracting into drop
 int_angle = asin(start_y/(r*n));
 
+% This uses fresnels coefficients
 p_intensity_left = 1*((sin(2*ext_angle)*sin(2*int_angle))/(sin(ext_angle+int_angle)^2*cos(ext_angle-int_angle)^2)) ...
                     *(tan(ext_angle-int_angle)/tan(ext_angle+int_angle))^(2*max_internal_bounces) ...
                     *((sin(2*int_angle)*sin(2*ext_angle))/(sin(int_angle+ext_angle)^2*cos(int_angle-ext_angle)^2));
@@ -46,30 +48,31 @@ s_intensity_left = 1*((sin(2*int_angle)*sin(2*ext_angle))/sin(ext_angle+int_angl
                     *(sin(ext_angle-int_angle)/sin(ext_angle+int_angle))^(2*max_internal_bounces) ...
                     *((sin(2*ext_angle)*sin(2*int_angle))/sin(int_angle+ext_angle)^2);
 
-x_enter = -sqrt(r^2 - start_y^2);
-internal_bounce_length = 2*r*sqrt(1-(start_y^2/(n*r)^2));
-cur_pos = [x_enter, start_y];
+x_enter = -sqrt(r^2 - start_y^2); % Advance to edge of drop
+internal_bounce_length = 2*r*sqrt(1-(start_y^2/(n*r)^2)); % Distance "b" in report
+cur_pos = [x_enter, start_y]; % Keeps track of current position of the ray
 add_to_plot(cur_pos);
-enter_angle = -(ext_angle - int_angle);
-dir = [cos(enter_angle), sin(enter_angle)];
+enter_angle = -(ext_angle - int_angle); % The angle known as theta in the report
+dir = [cos(enter_angle), sin(enter_angle)]; % The current angle of the ray
 
+% Do all the bounces inside the drop
 for bounce = 1:max_internal_bounces
-    cur_pos = cur_pos + dir*internal_bounce_length;
+    cur_pos = cur_pos + dir*internal_bounce_length; % Advance using direction and bounce length
     add_to_plot(cur_pos);
-    dir = bounce_inside(cur_pos, dir);
+    dir = bounce_inside(cur_pos, dir); % This function is just the reflection formula
 end
 
-cur_pos = cur_pos + dir*internal_bounce_length;
+cur_pos = cur_pos + dir*internal_bounce_length; % Advance one last time
 add_to_plot(cur_pos);
 deflection_angle = int_angle - ext_angle + atan2(dir(2), dir(1));
 wanted_x = cur_pos(1) - x_target;
-end_y = -(wanted_x * tan(pi - abs(deflection_angle)));
+y_distance_to_screen = -(wanted_x * tan(pi - abs(deflection_angle))); % Find how far it is to the screen
 
-if deflection_angle > -pi/2 && deflection_angle < 0
-    end_y = -end_y;
+if deflection_angle > -pi/2 && deflection_angle < 0 % Fix for weird bug where everything inverted for some angles.
+    y_distance_to_screen = -y_distance_to_screen;
 end
 
-hit_y = cur_pos(2) + end_y;
+hit_y = cur_pos(2) + y_distance_to_screen; % The end y-position
 add_to_plot([x_target, hit_y]);
 
 if plot_result == 1
